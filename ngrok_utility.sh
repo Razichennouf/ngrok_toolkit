@@ -17,10 +17,6 @@ function untrap_ctrl_c() {
 }
 
 initialize(){
-	if [ "$(id -u)" != 0 ]; then
-		echo "Error: This script requires root privileges. Please run it with sudo."
-		exit 1
-	fi
 	echo -e  "Before continuing, please make sure you have a valid ngrok token.\nIf you don't have one, follow the instructions to create an account and obtain a token."
 	echo -e " \nVisit the ngrok website at https://ngrok.com/.\n 1)Sign up for an account if you don't already have one.\n 2)Log in to your ngrok account. \n 3)Go to the "Auth" section or the "Your Authtoken" page\n 4)Copy the authtoken provided."
 	echo
@@ -67,7 +63,10 @@ initialize(){
 	fi
 	
 	read -rp "Enter protocol (TCP or UDP): " protocol
+	# Convert the entered protocol to lowercase
 	protocol=$(echo "$protocol" | tr '[:upper:]' '[:lower:]')
+
+	# Check if the protocol is valid
 	if [[ "$protocol" == "tcp" || "$protocol" == "udp" ]]; then
 	    echo "Valid protocol: $protocol"
 	else
@@ -81,12 +80,14 @@ run_in_debug_mode() {
     set -x
    }
 show_help() {
-	echo "Usage: ngrok_utility.sh [option]"
+	echo "Usage: ngrok_utility.sh [option] [option2]"
 	echo "Options:"
 	echo "  -r, --run 	 To run the ngrok suite"
-	echo "  -i, --sess-info      Extract session info"
+	echo "  -i, --sess-info  Extract session info"
 	echo "  -k, --kill       Destroy ngrok process"
 	echo "  -h, --help       Show help"
+	echo "  -d, --debug      To run the script in debug mode PS: only works with -r | --run"
+	echo "      --json       To print informations from endpoint"
 }
 
 check_install_ngrok() {
@@ -153,6 +154,13 @@ check_install_ngrok() {
         fi
     fi
 }
+json_out() {
+    if  pidof -x ./ngrok >/dev/null; then
+        curl http://127.0.0.1:4040/api/tunnels 2>/dev/null | jq
+    else
+        echo -e "${YELLOW}Warning:${RESET} Run the script first"
+    fi
+}
 install_package_if_not_installed() {
     echo -e "${YELLOW}Warning:${RESET} Checking packages"
     #Check for ipcalc
@@ -161,12 +169,12 @@ install_package_if_not_installed() {
     if [[ $INSTALL_IPCALC == "y" ]]; then
         if [ -f "/etc/debian_version" ]; then
             echo -e "${YELLOW}Warning:${RESET} Detected Debian-based system."
-            sudo apt-get update
- 	    sudo apt-get install -y ipcalc
+             apt-get update
+ 	     apt-get install -y ipcalc
         elif [ -f "/etc/fedora-release" ]; then
             echo -e "${YELLOW}Warning:${RESET} Detected Fedora-based system."
-            sudo apt-get update
-            sudo dnf install -y ipcalc
+             apt-get update
+             dnf install -y ipcalc
         else
           echo -e "${RED}Error:${RESET}  Unsupported operating system. Unable to install 'ipcalc'. Exiting."
             exit 1
@@ -189,13 +197,15 @@ token_is_valid()
      #kill -9 $(ps aux | grep ./ngrok | grep -v grep | cut -d" " -f9)
      if [[ $output == *"authentication failed"* ]]; then
          echo -e "${RED}Error:${RESET}  Invalid token: $token"
-         echo -e "${YELLOW}Warning:${RESET} lease enter a valid token: " corrected_token
+        read -e -p "$(tput setaf 3)Warning:$(tput sgr0) please enter a valid token: " corrected_token
          ./ngrok config add-authtoken $corrected_token
         return 1
      fi
 }
 run_ngrok_in_standalone() {
-	nohup ./ngrok $protocol $serv  >/dev/null 2>&1
+	nohup ./ngrok $protocol $serv &
+	echo -e "\n\n"
+	echo -e "${GREEN}Success:${RESET} Script is running "
 	
 }
 
@@ -221,11 +231,11 @@ if [ run_ngrok_in_standalone ];then
 	    if [[ $INSTALL_IPCALC == "y" ]]; then
 		if [ -f "/etc/debian_version" ]; then
 		    echo "Detected Debian-based system."
-		     sudo apt-get update
-   		     sudo apt-get install -y ipcalc
+		      apt-get update
+   		      apt-get install -y ipcalc
 		elif [ -f "/etc/fedora-release" ]; then
 		    echo "Detected Fedora-based system."
-		    sudo dnf install -y ipcalc
+		     dnf install -y ipcalc
 		else
 		    echo "Unsupported operating system. Unable to install 'ipcalc'. Exiting."
 		    exit 1
@@ -295,6 +305,7 @@ if [ run_ngrok_in_standalone ];then
 		echo "No existing rules found."
 	    fi
 
+
 	    highest_rule_num=$(iptables -L INPUT -n --line-numbers --verbose | grep -e "Rule[0-9]*" | awk '{print $1}' | sed 's/Rule//g' | sort -rn | head -n 1)
 
 	    if [[ -z $highest_rule_num ]]; then
@@ -305,7 +316,7 @@ if [ run_ngrok_in_standalone ];then
 
 	    comment="Rule$rule_num"
 
-	    
+
 	    iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	    iptables -A INPUT -i lo -j ACCEPT
 	    iptables -A INPUT -p tcp -s "$IP_ADDRESS" --dport "$SERVICE_PORT" -m comment --comment "$comment"  -j ACCEPT
@@ -327,9 +338,7 @@ if [ run_ngrok_in_standalone ];then
 		    for rule_num in $existing_rules; do
 		        firewall-cmd --permanent --direct --remove-rule $rule_num
 		    done
-
 		    firewall-cmd --reload
-
 		    echo "Existing rules removed."
 		else
 		    echo "Exiting without making changes."
@@ -338,8 +347,6 @@ if [ run_ngrok_in_standalone ];then
 	    else
 		echo "No existing rules found."
 	    fi
-
-	    
 	    highest_rule_num=$(firewall-cmd --permanent --direct --get-all-rules | grep -e "Rule[0-9]*" | awk '{print $1}' | sed 's/Rule//g' | sort -rn | head -n 1)
 
 	    if [[ -z $highest_rule_num ]]; then
@@ -349,12 +356,8 @@ if [ run_ngrok_in_standalone ];then
 	    fi
 
 	    comment="Rule$rule_num"
-
-	    
 	    firewall-cmd --permanent --zone=public --add-rich-rule="rule family=ipv4 source address=$IP_ADDRESS port protocol=tcp port=$SERVICE_PORT accept"
-
 	    firewall-cmd --reload
-
 	    echo "Firewalld rules have been updated."
 	else
 	    echo "Unsupported operating system."
@@ -369,7 +372,10 @@ fi
 }
 
 main() {
-	
+	 if [[ $EUID -ne 0 ]]; then
+		echo "This script requires root privileges. Please run it with sudo."
+		exit 1
+	    fi
 	if [[ $# -eq 0 ]]; then
 		show_help
 		exit 1
@@ -377,17 +383,17 @@ main() {
 trap ctrl_c INT
 	case $1 in
 		-k | --kill)
-			if ! pgrep -f "./ngrok" > /dev/null; then
+			if  ! pidof -x ./ngrok >/dev/null; then
 				echo -e "${YELLOW}Warning:${RESET} No ngrok process is currently running."
 			else
-				echo -e "${GREEN}Success:${RESET} Stopping ngrok..."
+				echo -e "${GREEN}Success:${RESET} Stopping ngrok..." 
 				pkill  -f "./ngrok"  >/dev/null 2>&1
-				sleep 2
 			fi
 			;;
 		-i | --sess-info)
 			extract_sess_info
 			;;
+	
 		-S | --secure)
 			if [[ $(extract_sess_info) == "*Public*" ]]; then
 				secure_service
@@ -400,20 +406,30 @@ trap ctrl_c INT
 			show_help
 			;;
 		-r | --run)
-			if [[ $# -ge 2 && ($2 == "--debug" || $3 == "--debug") ]]; then
-			run_in_debug_mode
-			initialize
-			check_install_ngrok
-			install_package_if_not_installed nohup ipcalc
-			token_is_valid
-			run_ngrok_in_standalone
+			
+		if [[ $# -ge 2 && ($2 == "--debug" || $2 == "-d" ) ]]; then
+    			if pidof -x ./ngrok >/dev/null > /dev/null; then
+     		   		echo -e "${YELLOW}Warning:${RESET} ngrok process is already running. Please stop the process before running in debug mode."
+ 	   		else
+				run_in_debug_mode
+				initialize
+				check_install_ngrok
+				install_package_if_not_installed nohup ipcalc
+				token_is_valid
+				run_ngrok_in_standalone
+    			fi
+		elif pidof -x ./ngrok >/dev/null > /dev/null; then
+     		   	echo -e "${YELLOW}Warning:${RESET} ngrok process is already running. Please stop the process before running in debug mode."
 		else
-			initialize
-			check_install_ngrok
-			install_package_if_not_installed nohup ipcalc
-			token_is_valid
-			run_ngrok_in_standalone
+		    initialize
+		    check_install_ngrok
+		    install_package_if_not_installed nohup ipcalc
+		    token_is_valid
+		    run_ngrok_in_standalone
 		fi
+			;;
+		--json) 
+			json_out
 			;;
 		*)
 			echo -e "${RED}Error:${RESET} Wrong param $1"
@@ -421,7 +437,9 @@ trap ctrl_c INT
 			exit 1
 		
 	esac
- 
+  
+			  #formatted_output=$(echo "$response" | jq .)
+			  #echo "$formatted_output"
 
 
 }
