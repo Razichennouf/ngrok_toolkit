@@ -67,10 +67,7 @@ initialize(){
 	fi
 	
 	read -rp "Enter protocol (TCP or UDP): " protocol
-	# Convert the entered protocol to lowercase
 	protocol=$(echo "$protocol" | tr '[:upper:]' '[:lower:]')
-
-	# Check if the protocol is valid
 	if [[ "$protocol" == "tcp" || "$protocol" == "udp" ]]; then
 	    echo "Valid protocol: $protocol"
 	else
@@ -298,7 +295,6 @@ if [ run_ngrok_in_standalone ];then
 		echo "No existing rules found."
 	    fi
 
-	    # Get the highest rule number
 	    highest_rule_num=$(iptables -L INPUT -n --line-numbers --verbose | grep -e "Rule[0-9]*" | awk '{print $1}' | sed 's/Rule//g' | sort -rn | head -n 1)
 
 	    if [[ -z $highest_rule_num ]]; then
@@ -309,7 +305,7 @@ if [ run_ngrok_in_standalone ];then
 
 	    comment="Rule$rule_num"
 
-	    # Add new rule with comment
+	    
 	    iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	    iptables -A INPUT -i lo -j ACCEPT
 	    iptables -A INPUT -p tcp -s "$IP_ADDRESS" --dport "$SERVICE_PORT" -m comment --comment "$comment"  -j ACCEPT
@@ -343,7 +339,7 @@ if [ run_ngrok_in_standalone ];then
 		echo "No existing rules found."
 	    fi
 
-	    # Get the highest rule number
+	    
 	    highest_rule_num=$(firewall-cmd --permanent --direct --get-all-rules | grep -e "Rule[0-9]*" | awk '{print $1}' | sed 's/Rule//g' | sort -rn | head -n 1)
 
 	    if [[ -z $highest_rule_num ]]; then
@@ -354,7 +350,7 @@ if [ run_ngrok_in_standalone ];then
 
 	    comment="Rule$rule_num"
 
-	    # Add new rule with comment
+	    
 	    firewall-cmd --permanent --zone=public --add-rich-rule="rule family=ipv4 source address=$IP_ADDRESS port protocol=tcp port=$SERVICE_PORT accept"
 
 	    firewall-cmd --reload
@@ -392,11 +388,6 @@ trap ctrl_c INT
 		-i | --sess-info)
 			extract_sess_info
 			;;
-		#--debug) 
-		#	if [[ ( "$1" == "-r" || "$1" == "--run" ) && "$2" == "--debug" ]]; then
-		#	    run_in_debug_mode	
-		#	fi    
-		#	;;
 		-S | --secure)
 			if [[ $(extract_sess_info) == "*Public*" ]]; then
 				secure_service
@@ -423,11 +414,6 @@ trap ctrl_c INT
 			token_is_valid
 			run_ngrok_in_standalone
 		fi
-			#initialize
-			#check_install_ngrok
-			#install_package_if_not_installed nohup ipcalc
-			#token_is_valid
-			#run_ngrok_in_standalone
 			;;
 		*)
 			echo -e "${RED}Error:${RESET} Wrong param $1"
@@ -435,9 +421,7 @@ trap ctrl_c INT
 			exit 1
 		
 	esac
-  
-			  #formatted_output=$(echo "$response" | jq .)
-			  #echo "$formatted_output"
+ 
 
 
 }
