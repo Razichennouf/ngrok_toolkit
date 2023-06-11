@@ -29,6 +29,8 @@ initialize(){
 	fi
 	echo -e "Enter your ngrok token: "
 	read -rs token
+	./ngrok config add-authtoken $token 2> /dev/null
+	token_is_valid
 	if ! [[ ${#token} -ge 45  ]]; then
 	    echo -e "${RED}Warning:${RESET} Invalid token length."
 	    exit 1
@@ -49,7 +51,7 @@ initialize(){
 	    read -p "Enter the port to expose: " serv
 	    if [[ $serv =~ ^[0-9]+$ ]]; then
 		if (( serv >= 1 && serv <= 65535 )); then
-		    echo "Port $serv is valid."
+		    echo -e "${GREEN}Port:${RESET} $serv is valid."
 		    break  
 		fi
 	    fi
@@ -68,9 +70,11 @@ initialize(){
 
 	# Check if the protocol is valid
 	if [[ "$protocol" == "tcp" || "$protocol" == "udp" ]]; then
-	    echo "Valid protocol: $protocol"
+	   echo -e "${GREEN}Valid${RESET} protocol: $protocol"
+	    echo -e "\n"
 	else
 	    echo "Invalid protocol. Only TCP or UDP is allowed."
+	    echo -e "\n"
 	    exit 1
 	fi
 	
@@ -97,7 +101,8 @@ check_install_ngrok() {
         ./ngrok update
         return 1
     else
-        echo "Locating ngrok..."
+        echo -e "${YELLOW}Locating:${RESET}  ngrok..."
+        echo -e  "\n"
         ngrok_paths=$(find / -name "ngrok" -type f -executable 2>/dev/null)
 
         if [ -z "$ngrok_paths" ]; then
@@ -138,17 +143,17 @@ check_install_ngrok() {
             done
 
             if [[ $attempts -eq $max_attempts ]]; then
-                echo "Maximum attempts reached. Exiting..."
+                echo -e "${YELLOW} Maximum ${RESET}  attempts reached. Exiting..."
                 exit 1
             fi
 
             if [ -x "$selected_path" ]; then
-                echo "Navigating to $selected_path"
+                echo -e "${GREEN}Navigating ${RESET}  to $selected_path"
                 cd "$(dirname "$selected_path")"
                 ./ngrok update
                 return 1
             else
-                echo "Invalid path. Exiting..."
+                echo -e "${YELLOW}Invalid ${RESET} path. Exiting..."
                 exit 1
             fi
         fi
@@ -162,13 +167,16 @@ json_out() {
     fi
 }
 install_package_if_not_installed() {
+    echo -e "\n"
     echo -e "${YELLOW}Warning:${RESET} Checking packages"
+    echo -e "\n"
     #Check for ipcalc
     if ! command -v ipcalc &> /dev/null; then
-    read -p -e "${RED}Error:${RESET} The 'ipcalc' command is not installed. Do you want to install it? (y/n): " INSTALL_IPCALC
+    	read -e -p "$(tput setaf 3)Warning:$(tput sgr0) The 'ipcalc' command is not installed. Do you want to install it? (y/n): " INSTALL_IPCALC
+    	echo -e "\n"
     if [[ $INSTALL_IPCALC == "y" ]]; then
         if [ -f "/etc/debian_version" ]; then
-            echo -e "${YELLOW}Warning:${RESET} Detected Debian-based system."
+            echo -e "${GREEN}Warning:${RESET} Detected Debian-based system."
              apt-get update
  	     apt-get install -y ipcalc
         elif [ -f "/etc/fedora-release" ]; then
@@ -189,6 +197,12 @@ fi
 
 }
 
+run_ngrok_in_standalone() {
+	nohup ./ngrok $protocol $serv &
+	echo -e "\n\n"
+	echo -e "${GREEN}Success:${RESET} Script is running "
+	
+}
 
 token_is_valid()
 {
@@ -202,12 +216,7 @@ token_is_valid()
         return 1
      fi
 }
-run_ngrok_in_standalone() {
-	nohup ./ngrok $protocol $serv &
-	echo -e "\n\n"
-	echo -e "${GREEN}Success:${RESET} Script is running "
-	
-}
+
 
 extract_sess_info() {
 status_code=$(curl -s -o output -w "%{http_code}" http://127.0.0.1:4040/api/tunnels) 
@@ -386,7 +395,7 @@ trap ctrl_c INT
 			if  ! pidof -x ./ngrok >/dev/null; then
 				echo -e "${YELLOW}Warning:${RESET} No ngrok process is currently running."
 			else
-				echo -e "${GREEN}Success:${RESET} Stopping ngrok..." 
+				echo -e "${GREEN}RUNNING:${RESET} Stopping ngrok..." 
 				pkill  -f "./ngrok"  >/dev/null 2>&1
 			fi
 			;;
@@ -395,10 +404,10 @@ trap ctrl_c INT
 			;;
 	
 		-S | --secure)
-			if [[ $(extract_sess_info) == "*Public*" ]]; then
+			if pidof -x ./ngrok >/dev/null ; then
 				secure_service
 			else
-				echo -e "${YELLOW}Warning:${RESET} You need to expose a service first"
+				echo -e "${YELLOW}Warning:${RESET} You need to run the script"
 				exit 1
 			fi
 			;;
@@ -415,7 +424,6 @@ trap ctrl_c INT
 				initialize
 				check_install_ngrok
 				install_package_if_not_installed nohup ipcalc
-				token_is_valid
 				run_ngrok_in_standalone
     			fi
 		elif pidof -x ./ngrok >/dev/null > /dev/null; then
@@ -424,7 +432,6 @@ trap ctrl_c INT
 		    initialize
 		    check_install_ngrok
 		    install_package_if_not_installed nohup ipcalc
-		    token_is_valid
 		    run_ngrok_in_standalone
 		fi
 			;;
@@ -437,6 +444,8 @@ trap ctrl_c INT
 			exit 1
 		
 	esac
+
+
 }
 
 main "$@"
