@@ -4,17 +4,6 @@
 </head>
 <body>
   <h1>ngrok_utility.sh</h1>
-  
-  <h2>Features</h2>
-  <ul>
-    <li>Start ngrok to expose a local server to the internet.</li>
-    <li>Stop ngrok if it is currently running.</li>
-    <li>Extract session information from ngrok.</li>
-    <li>Secure the ngrok service by setting up authentication.</li>
-    <li>Run ngrok in debug mode for troubleshooting.</li>
-    <li>Display help information and usage instructions.</li>
-  </ul>
-  
   <h2>Prerequisites</h2>
   <ul>
     <li>Bash shell</li>
