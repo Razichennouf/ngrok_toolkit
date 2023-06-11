@@ -45,10 +45,7 @@
   <li><code>-S</code>, <code>--secure</code>: Enable additional security measures for your ngrok service.</li>
   <li><code>-h</code>, <code>--help</code>: Display the help menu with command descriptions and usage guidelines.</li>
   <li><code>-r</code>, <code>--run</code>: Sart the setup.
-    <ul>
-      <li>Use <code>--debug</code> for running ngrok in debug mode.</li>
-    </ul>
-  </li>
+  <li>Use <code>--debug</code> for running ngrok in debug mode.</li>
 </ul>
 
 <h2 style="color: #0366d6;">Note:</h2>
