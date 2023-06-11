@@ -40,12 +40,14 @@
 <h2 style="color: #0366d6;">Commands:</h2>
 
 <ul>
-  <li><code>-k</code>, <code>--kill</code>: Stop the running ngrok process.</li>
-  <li><code>-i</code>, <code>--sess-info</code>: Extract session information for active ngrok tunnels.</li>
+  <li><code>-r</code>, <code>--run</code>: Sart script.
   <li><code>-S</code>, <code>--secure</code>: Enable additional security measures for your ngrok service.</li>
+  <li><code>--debug</code>Used with -r | --run to debug while setting up .</li>
+  <li><code>-i</code>, <code>--sess-info</code>: Extract session information for active ngrok tunnels in JSON format.</li>
+  <li><code>-k</code>, <code>--kill</code>: Stop the running ngrok process.</li>
+  <li><code>-S</code>, <code>--secure</code>: Add a security rule to secure exposed service.</li>
   <li><code>-h</code>, <code>--help</code>: Display the help menu with command descriptions and usage guidelines.</li>
-  <li><code>-r</code>, <code>--run</code>: Sart the setup.
-  <li>Use <code>--debug</code> for running ngrok in debug mode.</li>
+  
 </ul>
 
 <h2 style="color: #0366d6;">Note:</h2>
