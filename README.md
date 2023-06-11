@@ -56,10 +56,7 @@
       <div class="description">--help: Display help information and usage instructions.</div>
     </div>
   </div>
-  
-  <div class="license">
-    <h3>License</h3>
-    <p>This script is licensed under the <a href="#">MIT License</a>. See the <a href="#">LICENSE</a> file for more details.</p>
-  </div>
+  <h3>🌟 Explore the repository, star it, and contribute to the scripts to make them even better. Let's empower each other and simplify our daily tasks with the power of automation.</h3>
+<p>🔁 Like, comment, and share to spread the word and help others supercharge their Docker experience!</p>
 </body>
 </html>
