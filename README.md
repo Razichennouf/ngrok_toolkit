@@ -34,13 +34,6 @@
   <li>ℹ️ Convenient Help Menu: Access a comprehensive help menu providing instructions and usage guidelines for each command.</li>
 </ul>
 
-<h2 style="color: #0366d6;">Requirements:</h2>
-
-<ul>
-  <li>Bash (Bourne Again Shell)</li>
-  <li>ngrok (installed and accessible in the system's PATH)</li>
-</ul>
-
 <h2 style="color: #0366d6;">Usage:</h2>
 
 <ol>
