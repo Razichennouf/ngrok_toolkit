@@ -57,6 +57,5 @@
     </div>
   </div>
   <h3>🌟 Explore the repository, star it, and contribute to the scripts to make them even better. Let's empower each other and simplify our daily tasks with the power of automation.</h3>
-<p>🔁 Like, comment, and share to spread the word and help others supercharge their Docker experience!</p>
 </body>
 </html>
