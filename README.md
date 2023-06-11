@@ -17,34 +17,6 @@
     <li>Make sure the script is executable: <code>chmod +x ngrok_utility.sh</code></li>
     <li>Run the script: <code>./ngrok_utility.sh [options]</code></li>
   </ol>
-  
-  <h2>Options</h2>
-  <div class="options">
-    <div class="option">
-      <div class="flag">-k</div>
-      <div class="description">--kill: Stop the currently running ngrok process.</div>
-    </div>
-    <div class="option">
-      <div class="flag">-i</div>
-      <div class="description">--sess-info: Extract and display session information from ngrok.</div>
-    </div>
-    <div class="option">
-      <div class="flag">-S</div>
-      <div class="description">--secure: Secure the ngrok service by setting up authentication.</div>
-    </div>
-    <div class="option">
-      <div class="flag">-r</div>
-      <div class="description">--run: Start ngrok and expose a local server to the internet.</div>
-    </div>
-    <div class="option" style="margin-left: 20px;">
-      <div class="flag">--debug</div>
-      <div class="description">Run ngrok in debug mode for troubleshooting.</div>
-    </div>
-    <div class="option">
-      <div class="flag">-h</div>
-      <div class="description">--help: Display help information and usage instructions.</div>
-    </div>
-  </div>
   <h2>💡 Why Use These Scripts:</h2>
 
 <h2 style="color: #0366d6;">Description:</h2>
