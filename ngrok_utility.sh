@@ -212,7 +212,6 @@ token_is_valid() {
 
         if [[ $output == *"authentication failed"* ]]; then
             echo -e "${RED}Error:${RESET} Invalid token (Attempt $attempt of $max_attempts)"
-            echo -e "\n"
 
             if [[ $attempt -eq $max_attempts ]]; then
                 echo -e "${RED}Error:${RESET} Maximum number of attempts reached. Exiting..."
@@ -394,74 +393,71 @@ fi
 }
 
 main() {
-	 if [[ $EUID -ne 0 ]]; then
-		echo "This script requires root privileges. Please run it with sudo."
-		exit 1
-	    fi
-	if [[ $# -eq 0 ]]; then
-		show_help
-		exit 1
-	fi
-trap ctrl_c INT
-	case $1 in
-		-k | --kill)
-			if  ! pidof -x ./ngrok >/dev/null; then
-				echo -e "${YELLOW}Warning:${RESET} No ngrok process is currently running."
-			else
-				echo -e "${GREEN}RUNNING:${RESET} Stopping ngrok..." 
-				pkill  -f "./ngrok"  >/dev/null 2>&1
-			fi
-			;;
-		-i | --sess-info)
-			extract_sess_info
-			;;
-	
-		-S | --secure)
-			if pidof -x ./ngrok >/dev/null ; then
-				secure_service
-			else
-				echo -e "${YELLOW}Warning:${RESET} You need to run the script"
-				exit 1
-			fi
-			;;
-		-h|--help)
-			show_help
-			;;
-		-r | --run)
-			
-		if [[ $# -ge 2 && ($2 == "--debug" || $2 == "-d" ) ]]; then
-    			if pidof -x ./ngrok >/dev/null > /dev/null; then
-     		   		echo -e "${YELLOW}Warning:${RESET} ngrok process is already running. Please stop the process before running in debug mode."
- 	   		else
-				run_in_debug_mode
-				initialize
-				check_install_ngrok
-				install_package_if_not_installed nohup ipcalc
-				run_ngrok_in_standalone
-    			fi
-		elif pidof -x ./ngrok >/dev/null > /dev/null; then
-     		   	echo -e "${YELLOW}Warning:${RESET} ngrok process is already running. Please stop the process before running in debug mode."
-		else
-		    initialize
-		    check_install_ngrok
-		    install_package_if_not_installed nohup ipcalc
-		    run_ngrok_in_standalone
-		fi
-			;;
-		--json) 
-			json_out
-			;;
-		*)
-			echo -e "${RED}Error:${RESET} Wrong param $1"
-			show_help
-			exit 1
-		
-	esac
-  
-			  #formatted_output=$(echo "$response" | jq .)
-			  #echo "$formatted_output"
+    #Check if the script is running with root privileges
+    if [[ $EUID -ne 0 ]]; then
+        echo "This script requires root privileges. Please run it with sudo."
+        exit 1
+    fi
 
+    #Check if any arguments are provided
+    if [[ $# -eq 0 ]]; then
+        show_help
+        exit 1
+    fi
 
+    trap ctrl_c INT
+
+    case $1 in
+        -k | --kill)
+            if ! pidof -x ./ngrok >/dev/null; then
+                echo -e "${YELLOW}Warning:${RESET} No ngrok process is currently running."
+            else
+                echo -e "${GREEN}RUNNING:${RESET} Stopping ngrok..."
+                pkill -f "./ngrok" >/dev/null 2>&1
+            fi
+            ;;
+        -i | --sess-info)
+            extract_sess_info
+            ;;
+        -S | --secure)
+            if pidof -x ./ngrok >/dev/null; then
+                echo -e "${YELLOW}Warning:${RESET} Ngrok process is already running. Please stop the process before running in secure mode."
+                exit 1
+            else
+                secure_service
+            fi
+            ;;
+        -h | --help)
+            show_help
+            ;;
+        -r | --run)
+            if [[ $# -ge 2 && ($2 == "--debug" || $2 == "-d") ]]; then
+                if pidof -x ./ngrok >/dev/null; then
+                    echo -e "${YELLOW}Warning:${RESET} Ngrok process is already running. Please stop the process before running in debug mode."
+                else
+                    run_in_debug_mode
+                    initialize
+                    check_install_ngrok
+                    install_package_if_not_installed nohup ipcalc
+                    run_ngrok_in_standalone
+                fi
+            elif pidof -x ./ngrok >/dev/null; then
+                echo -e "${YELLOW}Warning:${RESET} Ngrok process is already running. Please stop the process before running in debug mode."
+            else
+                initialize
+                check_install_ngrok
+                install_package_if_not_installed nohup ipcalc
+                run_ngrok_in_standalone
+            fi
+            ;;
+        --json)
+            json_out
+            ;;
+        *)
+            echo -e "${RED}Error:${RESET} Invalid parameter: $1"
+            show_help
+            exit 1
+            ;;
+    esac
 }
-
 main "$@"
