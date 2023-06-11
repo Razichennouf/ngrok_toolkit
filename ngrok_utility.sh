@@ -437,11 +437,6 @@ trap ctrl_c INT
 			exit 1
 		
 	esac
-  
-			  #formatted_output=$(echo "$response" | jq .)
-			  #echo "$formatted_output"
-
-
 }
 
 main "$@"
