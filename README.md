@@ -4,12 +4,6 @@
 </head>
 <body>
   <h1>ngrok_utility.sh</h1>
-  <h2>Prerequisites</h2>
-  <ul>
-    <li>Bash shell</li>
-    <li>ngrok installed and accessible via the command line</li>
-    <li>Required dependencies: nohup, ipcalc</li>
-  </ul>
   
   <h2>Usage</h2>
   <ol>
