@@ -24,18 +24,14 @@ initialize(){
 	if [[ "$response" =~ ^(yes|y|our|yesto)$ ]]; then
  		 :
 	else
- 		 echo -e "${RED}Error:${RESET} Invalid response. Exiting.."
+ 		 echo -e "${WARNING}Warning:${RESET} Invalid response [yY|nN]. Exiting.."
 		  exit 1
 	fi
 	echo -e "Enter your ngrok token: "
 	read -rs token
-	./ngrok config add-authtoken $token 2> /dev/null
-	token_is_valid
-	if ! [[ ${#token} -ge 45  ]]; then
-	    echo -e "${RED}Warning:${RESET} Invalid token length."
-	    exit 1
-	fi
-	echo -e "\nEnter your ngrok API Key: "
+	 ./ngrok config add-authtoken $token > /dev/null	
+         token_is_valid
+	echo -e "Enter your ngrok API Key: "
 	read -rs apikey
 	
 	if ! [[ ${#apikey} -ge 29 ]]; then
@@ -73,7 +69,7 @@ initialize(){
 	   echo -e "${GREEN}Valid${RESET} protocol: $protocol"
 	    echo -e "\n"
 	else
-	    echo "Invalid protocol. Only TCP or UDP is allowed."
+	    cho -e "${RED}Invalid${RESET} protocol. Only TCP or UDP is allowed."
 	    echo -e "\n"
 	    exit 1
 	fi
@@ -204,17 +200,34 @@ run_ngrok_in_standalone() {
 	
 }
 
-token_is_valid()
-{
-     output=$(timeout 5s ./ngrok tcp 22 2>&1)
-     #pkill -9 -f "./ngrok"
-     #kill -9 $(ps aux | grep ./ngrok | grep -v grep | cut -d" " -f9)
-     if [[ $output == *"authentication failed"* ]]; then
-         echo -e "${RED}Error:${RESET}  Invalid token: $token"
-        read -e -p "$(tput setaf 3)Warning:$(tput sgr0) please enter a valid token: " corrected_token
-         ./ngrok config add-authtoken $corrected_token
-        return 1
-     fi
+token_is_valid() {
+    local corrected_token
+    local output
+    local max_attempts=3
+    #Considered the firt try setup as an attempt
+    local attempt=1
+
+    while [[ $attempt -le $max_attempts ]]; do
+        output=$(timeout 5s ./ngrok tcp 22 2>&1)
+
+        if [[ $output == *"authentication failed"* ]]; then
+            echo -e "${RED}Error:${RESET} Invalid token (Attempt $attempt of $max_attempts)"
+            echo -e "\n"
+
+            if [[ $attempt -eq $max_attempts ]]; then
+                echo -e "${RED}Error:${RESET} Maximum number of attempts reached. Exiting..."
+                exit 1
+            fi
+
+            attempt=$((attempt + 1))
+            read -e -p "$(tput setaf 3)Warning:$(tput sgr0) Please enter a valid token: " corrected_token
+            ./ngrok config add-authtoken "$corrected_token" > /dev/null
+        else
+            break
+        fi
+    done
+
+    return 0
 }
 
 
@@ -444,6 +457,9 @@ trap ctrl_c INT
 			exit 1
 		
 	esac
+  
+			  #formatted_output=$(echo "$response" | jq .)
+			  #echo "$formatted_output"
 
 
 }
