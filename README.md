@@ -107,7 +107,7 @@
 
 <p>Please ensure that you have the necessary permissions to execute the script, and make sure to provide a valid ngrok authentication token when prompted.</p>
 
-<p>Feel free to explore the script collection and customize it according to your needs. For detailed information on each command and its usage, refer to the in-script comments or use the <code>--help</code> option.</p>
+<p>Feel free to explore the script collection and customize it according to your needs.</p>
 
 <p>Happy ngrok-ing!</p>
   <h3>🌟 Explore the repository, star it, and contribute to the scripts to make them even better. Let's empower each other and simplify our daily tasks with the power of automation.</h3>
