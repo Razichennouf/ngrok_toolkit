@@ -18,6 +18,8 @@ By default ngrok bypasses the firewall and any rule you specify in will be dropp
     <li>Make sure the script is executable: <code>chmod +x ngrok_utility.sh</code></li>
     <li>Run the script: <code>./ngrok_utility.sh [options]</code></li>
   </ol>
+  
+  Using low level firewall utility
   <h2>💡 Why Use These Scripts:</h2>
 
 <h2 style="color: #0366d6;">Description:</h2>
