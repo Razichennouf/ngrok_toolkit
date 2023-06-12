@@ -7,6 +7,9 @@
   <h2> Problem </h2>
   
   ![image](https://github.com/Razichennouf/ngrok_toolkit/assets/77803582/75edee54-a771-4d2f-92ec-3d131d99ec1c)
+![image](https://github.com/Razichennouf/ngrok_toolkit/assets/77803582/5ce889fa-e01d-4cc8-b759-d631936b9ef8)
+![image](https://github.com/Razichennouf/ngrok_toolkit/assets/77803582/ba67ac1a-d029-4348-a34d-829c310e318f)
+![image](https://github.com/Razichennouf/ngrok_toolkit/assets/77803582/80b7c1cd-708f-4964-820d-ba19af5be683)
 
   <h2>Usage</h2>
   <ol>
