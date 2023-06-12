@@ -10,7 +10,8 @@
 ![image](https://github.com/Razichennouf/ngrok_toolkit/assets/77803582/5ce889fa-e01d-4cc8-b759-d631936b9ef8)
 ![image](https://github.com/Razichennouf/ngrok_toolkit/assets/77803582/ba67ac1a-d029-4348-a34d-829c310e318f)
 ![image](https://github.com/Razichennouf/ngrok_toolkit/assets/77803582/80b7c1cd-708f-4964-820d-ba19af5be683)
-
+By default ngrok bypasses the firewall and any rule you specify in will be dropped for example you want to let only one ip address to access your service
+  with ngrok that rulle will be bypassed
   <h2>Usage</h2>
   <ol>
     <li>Clone or download this repository to your local machine.</li>
